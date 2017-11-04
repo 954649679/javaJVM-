@@ -28,8 +28,58 @@
 
 * 使用句柄的方式：
 
-![使用句柄操作对象](https://github.com/954649679/javaJVM-/blob/master/%E5%90%84%E7%AB%A0%E8%8A%82%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image/%E9%80%9A%E8%BF%87%E5%8F%A5%E6%9F%84%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1.jpeg)
+![使用句柄操作对象](image/%E9%80%9A%E8%BF%87%E5%8F%A5%E6%9F%84%E6%93%8D%E4%BD%9C%E5%AF%B9%E8%B1%A1.jpeg)
 
 * 直接使用指针访问
 
-![使用指针操作对象](https://github.com/954649679/javaJVM-/blob/master/%E5%90%84%E7%AB%A0%E8%8A%82%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/image/%E9%80%9A%E8%BF%87%E6%8C%87%E9%92%88%E7%9B%B4%E6%8E%A5%E8%AE%BF%E9%97%AE%E5%AF%B9%E8%B1%A1.jpeg)
+![使用指针操作对象](image/%E9%80%9A%E8%BF%87%E6%8C%87%E9%92%88%E7%9B%B4%E6%8E%A5%E8%AE%BF%E9%97%AE%E5%AF%B9%E8%B1%A1.jpeg)
+
+这两宗访问方式各有优势，使用句柄来访问最大好处就是在reference中存储的是稳定的句柄，在
+对象被移动（垃圾收集是移动对象是非常普遍的行为）时只需要改变句柄中的实例数据的指针，而reference
+本身不需要修改。
+使用直接指针访问的最大好处就是速度快，他节省了一次指针定位的时间开销。HotSpot就是使用这种
+方式进行对象访问的。
+
+### 2.4 实战：OutOfMemoryError 异常
+
+通过学习OutOfMemoryError 异常能够更加的清楚理解各个运行区存储的内容以及在实际工作中当
+遇到内存溢出时能够根据异常的信息快速的判断是哪个区域的内存溢出
+
+#### 2.4.1 Java堆溢出
+
+Java堆内存的OOM异常时实际应用中常见的内存溢出情况。
+
+分析异常时需要首先确定是内存泄漏还是内存溢出。如果是内存泄漏需要定位内存泄漏发生的代码
+内置，进而解决此问题。如果是内存溢出，则需要判断内存对象是否必须活着，如果必须存活，则
+通过设置对参数（-Xmx 和Xms）调大堆内存。如果内存对象是非必须存活的，则尽量缩短对象的
+生命周期，减小运行期间内存消耗。
+
+[试试看HeapOOM.java][JVMTest/src/test/HeapOOM.java]
+
+#### 2.4.2 虚拟机栈和本地方法溢出
+
+HotSpot虚拟机并不区分虚拟机栈和本地方法栈，所以对于HotSpot来说，虽然设置-Xoss参数（
+是指本地方法栈大小）存在，但是实际上是无效的，栈容量只由-Xss参数设定。
+
+如果线程请求的栈深度大于虚拟机所允许的最大深度，将抛出StackOverflowError异常
+
+如果虚拟机在扩展栈是无法申请到足够的内存空间，则将抛出OutOfMemoryError异常
+
+[试试看JavaVMStackSOF.java][JVMTest/src/test/JavaVMStackSOF.java]
+
+#### 2.4.3方法区和运行时常量池溢出
+
+常量池异常错误信息：OutOfMemoryError:PermGen space
+
+我们可以通过设置虚拟机参数 -XX:PermSize 和-XX:MaxPermSize 设置方法区大小同时也就
+限制了常量池的容量（运行时常量池是方法区的一部分）
+
+我在运行时控制台输出
+`
+Java HotSpot(TM) 64-Bit Server VM warning: ignoring option PermSize10m; support was removed in 8.0
+Java HotSpot(TM) 64-Bit Server VM warning: ignoring option MaxPermSize10m; support was removed in 8.0
+`
+
+在书中显示java1.6还是支持的。
+
+[试试看RunTimeConstantPoolOOM.java][JVMTest/src/test/RunTimeConstantPoolOOM.java]

@@ -12,10 +12,10 @@
 
 ## 第一部分 走进JAVA
 
-### [第一章 走进JAVA][https://github.com/954649679/javaJVM-/blob/master/%E5%90%84%E7%AB%A0%E8%8A%82%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/chapter01.md]
+### [第一章 走进JAVA][各章节学习笔记/chapter01.md]
 
 ## 第二部分 自动内存管理机制
 
-### [第二章 java内存区域与内存溢出异常][https://github.com/954649679/javaJVM-/blob/master/%E5%90%84%E7%AB%A0%E8%8A%82%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/chapter02.md]
+### [第二章 java内存区域与内存溢出异常][各章节学习笔记/chapter02.md]
 
-
+### [第三章 垃圾回收期与内存分配策略][各章节学习笔记/chapter03.md]
